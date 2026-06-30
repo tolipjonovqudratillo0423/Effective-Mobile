@@ -118,14 +118,14 @@ REFRESH_TOKEN_LIFETIME=1
 | PUT | `/sales/product/<int:pk>/`              |Full Update of Product |
 | DELETE | `/sales/product/<int:pk>/`           | Delete Product |
 
-### Mock-data (Product)
+### Mock-data (Order)
 | Method | Endpoint | Description | Access |
 |--------|----------|-------------|--------|
-| GET | `/sales/order/`                         | List all open projects |
+| GET | `/sales/order/`                         | List all open orders |
 | POST | `/sales/order/`                        | Create a order | 
 | GET | `/sales/order/<int:pk>/`                | Get order's details |
 | PATCH | `/sales/order/<int:pk>/`              | Partial Update of order |
-| PUT | `/sales/order/<int:pk>/`                |Full Update of Profuct |
+| PUT | `/sales/order/<int:pk>/`                |Full Update of order |
 | DELETE | `/sales/order/<int:pk>/`             | Delete order |
 
 ### System_console (Business Elements)
