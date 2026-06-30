@@ -36,6 +36,7 @@ DJANGO_APPS = [
 LOCAL_APPS = [
     'apps.authentication',
     'apps.common',
+    'apps.system_console',
 ]
 
 

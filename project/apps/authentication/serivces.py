@@ -1,5 +1,5 @@
 
-from apps.authentication.models import (
+from apps.system_console.models import (
     AccessRules
 )
 

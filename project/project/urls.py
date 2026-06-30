@@ -14,6 +14,7 @@ urlpatterns = [
 
 urlpatterns += [
     path('auth/', include('apps.authentication.urls')),
+    path('system_console/', include('apps.system_console.urls')),
 ]
 
 
