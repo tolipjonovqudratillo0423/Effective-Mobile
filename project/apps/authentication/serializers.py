@@ -55,9 +55,35 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
     
 
+#======================================================================
+# Login Serializer
+#======================================================================
 
 class LoginSerializer(serializers.Serializer):
     
     email = serializers.EmailField()
     password = serializers.CharField()
 
+
+#======================================================================
+# Profile Serializer
+#======================================================================
+
+class ProfileSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = User
+        fields = [
+            "email",
+            "first_name",
+            "middle_name",
+            "last_name"
+        ]
+    
+    def update(self, instance, validated_data):
+        
+        for attrs, param in validated_data.items():
+            setattr(instance, attrs, param)
+        instance.save()
+        
+        return instance

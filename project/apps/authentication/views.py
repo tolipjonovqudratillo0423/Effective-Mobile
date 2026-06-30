@@ -3,10 +3,13 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
+from drf_spectacular.utils import extend_schema
+
 
 from apps.authentication.serializers import (
     RegisterSerializer,
-    LoginSerializer
+    LoginSerializer,
+    ProfileSerializer
 )
 from apps.common.utils import (
     ResponseMessage,
@@ -20,7 +23,10 @@ from apps.common.utils import (
 #======================================================================
 # Register APIview
 #======================================================================
-
+@extend_schema(
+    tags=["Auth"],
+    summary="Register user."
+)
 class RegisterAPIView(APIView):
     
     serializer_class = RegisterSerializer
@@ -46,7 +52,10 @@ class RegisterAPIView(APIView):
 #======================================================================
 # Login APIview
 #======================================================================
-
+@extend_schema(
+    tags=["Auth"],
+    summary="Login user."
+)
 class LoginAPIView(APIView):
     
     serializer_class = LoginSerializer
@@ -73,15 +82,19 @@ class LoginAPIView(APIView):
             )
         
         return ResponseMessage.success(
-            message=f"Welcome dear {user.username}!",
+            message=f"Welcome dear {user.first_name}!",
             data=tokens(user=user),
         )
+
 
 
 #======================================================================
 # Logout APIview
 #======================================================================
-
+@extend_schema(
+    tags=["Auth"],
+    summary="Logout user."
+)
 class LogoutAPIView(APIView):
     
     permission_classes = [IsAuthenticated]
@@ -109,7 +122,60 @@ class LogoutAPIView(APIView):
         
 
         
+#======================================================================
+# Profile APIview
+#======================================================================
+@extend_schema(
+    tags=["Profile"],
+    summary="User Profile."
+)
+class ProfileAPIView(APIView):
+    
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProfileSerializer
+    
+    def get(self, request):
         
+        user = request.user
+        
+        return ResponseMessage.success(
+            message="Your profile.",
+            data={
+                "profile":{
+                    "first_name":user.first_name,
+                    "middle_name":user.middle_name,
+                    "last_name":user.last_name,
+                    "email":user.email,
+                }
+            }
+        )
+    
+    def put(self, request):
+        
+        instance = request.user
+        
+        serializer = self.serializer_class(
+            data=request.data,
+            instance=instance,
+        )
+        
+        serializer.is_valid(raise_exception=True)
+    
+        serializer.save()
+        
+        return ResponseMessage.success(
+            message="Profile updated.",
+            data=serializer.data
+        )
+    def delete(self, request):
+        
+        user = request.user
+        user.is_active = False
+        user.save(update_fields=["is_active"])
+        
+        return ResponseMessage.success(
+            message=f"Goodbye {user.first_name}😊 !"
+        )
 
 
     

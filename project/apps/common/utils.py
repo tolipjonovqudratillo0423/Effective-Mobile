@@ -12,7 +12,7 @@ class ResponseMessage:
     @staticmethod
     def success(
         message:str,
-        data:dict
+        data:dict=None
     ):
         
         return Response({
@@ -25,7 +25,7 @@ class ResponseMessage:
     @staticmethod
     def error(
         message:str,
-        data:dict
+        data:dict=None
     ):
         
         return Response({

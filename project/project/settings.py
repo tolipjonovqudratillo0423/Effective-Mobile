@@ -39,14 +39,15 @@ LOCAL_APPS = [
 ]
 
 
-TRIRD_PARTY_APPS = []
+TRIRD_PARTY_APPS = [
+    'drf_spectacular',
+]
 
 
 INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS
 
 if DEBUG:
-    INSTALLED_APPS += [
-    ]
+    INSTALLED_APPS += TRIRD_PARTY_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -88,7 +89,16 @@ DATABASES = {
     }
 }
 
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Essential Mobile',
+    'DESCRIPTION': 'Auth flow',
+    'VERSION': '1.0.1',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # OTHER SETTINGS
+}
 REST_FRAMEWORK = {
+    
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
