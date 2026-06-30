@@ -18,7 +18,7 @@ class CustomUserManager(BaseUserManager):
         normalized_email = self.normalize_email(email=email)
         
         user = self.model(
-            email=email,
+            email=normalized_email,
             username=username,
             **extra_fields
         )
@@ -52,7 +52,7 @@ class User(AbstractUser):
         ADMIN = "admin", "Admin"
     
     email = models.EmailField(
-        "Email Adress",
+        "Email Address",
         max_length=200,
         unique=True,
     )    
@@ -62,8 +62,11 @@ class User(AbstractUser):
         blank=True,
         null=True,
         error_messages={
-            "unique":"User have already exists!"
+            "unique":"User already exists!"
         }
+    )
+    middle_name = models.CharField(
+        max_length=100
     )
     role = models.CharField(
         choices=RolesChoices.choices,
@@ -72,6 +75,7 @@ class User(AbstractUser):
     )
     is_verified = models.BooleanField(default=False)
     
+    objects = CustomUserManager()
     
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

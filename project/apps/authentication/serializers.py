@@ -17,14 +17,19 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = [
             "first_name",
             "last_name",
+            "middle_name",
             "email",
             "password",
             "confirm_password",
         ]
-        write_only_fields = [
-            "confirm_password",
-            "password"
-        ]
+        extra_kwargs = {
+            "password":{
+                "write_only":True
+            },
+            "confirm_password":{
+                "write_only":True
+            }
+        }
         
         
     def validate(self, attrs):
@@ -41,12 +46,18 @@ class RegisterSerializer(serializers.ModelSerializer):
         return validated_data
     
     def create(self, validated_data):
-        user = User.objects.create(
+        password = validated_data.pop("password")
+        user = User.objects.create_user(
             username=None,
+            password=password,
             **validated_data
         )
         return user
     
 
 
+class LoginSerializer(serializers.Serializer):
+    
+    email = serializers.EmailField()
+    password = serializers.CharField()
 
