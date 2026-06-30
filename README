@@ -1,6 +1,6 @@
-# Freelance Marketplace API
+# Test Project From Effective Mobile
 
-A production-ready REST API built with Django and Django REST Framework — a backend clone of Upwork/Freelancer.com.
+A check-ready REST API built with Django and Django REST Framework 
 
 ## Tech Stack
 
@@ -34,24 +34,55 @@ View → Service → Repository → ORM → Database
 ## Features
 
 - Role-based access control (Admin / Manager / User / Guest)
+- Role "Admin" has all previleges in all objects
+- Role "Manager" has previleges in Create Update Read in objects, behind access rules and elements
+- Role "User" can only read.
+- Role "Guest" can't do anything.
 - Swagger UI documentation
 
+**Access Rules Schema**
+
+The permission system is built on three entities:
+
+- **Role** — a field on the User model (`admin`, `manager`, `user`, `guest`)
+- **BusinessElement** — a catalog of protected resources (e.g. `order`, `product`)
+- **AccessRules** — links a role + element to specific permissions (`can_read`, `can_create`, `can_update`, `can_delete`)
+
+When a request hits a protected endpoint, `AccessService.has_permission(role, element, action)` looks up the matching `AccessRules` row and returns whether the action is allowed. If no rule exists, access is denied by default.
+
+| Role       | Read  | Create | Update | Delete |
+|------------|------ |--------|--------|--------|
+| Admin      |  ✅  |   ✅   |  ✅   |   ✅   |
+| Manage     |  ✅  |   ✅   |  ✅   |   ❌   |
+| User       |  ✅  |   ❌   |  ❌   |   ❌   |
+| Guest      |  ❌  |   ❌   |  ❌   |   ❌   |
+
+If the user is unauthenticated → `401 Unauthorized`.
+If authenticated but lacks permission → `403 Forbidden`.
 ---
+
+## Default Roles After Registration
+
+New users get the `guest` role by default. To test other roles, manually update `role` field via Django admin or shell.
 
 ## Installation
 
 ```bash
-git clone https://github.com/tolipjonovqudratillo0423/Freelance-Marketplace-App
-cd Freelance-Marketplace-App
+git clone https://github.com/tolipjonovqudratillo0423/Effective-Mobile
+cd project
 
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 
 pip install -r requirements.txt
 
-cp .env.example .env  # fill in your credentials
+cp .venv.example .venv  # fill in your credentials
 
+python manage.py makemigrations
 python manage.py migrate
+
+
+python manage.py seed_access_rules
 python manage.py runserver
 ```
 
@@ -60,8 +91,6 @@ python manage.py runserver
 ```env
 SECRET_KEY=your-secret-key
 DEBUG=True
-EMAIL_HOST_USER=your-email@gmail.com
-EMAIL_HOST_PASSWORD=your-app-password
 ACCESS_TOKEN_LIFETIME=100
 REFRESH_TOKEN_LIFETIME=1
 ```
@@ -73,61 +102,58 @@ REFRESH_TOKEN_LIFETIME=1
 ### Auth
 | Method | Endpoint | Description | Access |
 |--------|----------|-------------|--------|
-| POST | `/auth/register/` | Register new user | Public |
-| POST | `/auth/login/` | Login, get JWT tokens | Public |
-| GET | `/auth/send_code/` | Send email verification code | Authenticated |
-| POST | `/auth/verify_code/` | Verify email code | Authenticated |
+| POST | `/auth/register/`                      | Register new user | Public |
+| POST | `/auth/login/`                         | Login, get JWT tokens | Public |
+| GET | `/auth/profile/`                         | Look through his profile |
+| PUT | `/auth/profile/`                         | Update profile |
+| DELETE | `/auth/profile/`                         | Makes user inactive |
 
-### Projects
+### Mock-data (Product)
 | Method | Endpoint | Description | Access |
 |--------|----------|-------------|--------|
-| GET | `/common/projects/` | List all open projects | Public |
-| POST | `/client/projects/create` | Create a project | Client only |
-| GET | `/client/projects/all` | Get client's own projects | Client only |
-| POST | `/client/projects/complete` | Mark project as completed | Freelancer only |
+| GET | `/sales/product/`                       | List all open products |
+| POST | `/sales/product/`                      | Create a product | 
+| GET | `/sales/product/<int:pk>/`              | Get product's details |
+| PATCH | `/sales/product/<int:pk>/`            | Partial Update of Product |
+| PUT | `/sales/product/<int:pk>/`              |Full Update of Product |
+| DELETE | `/sales/product/<int:pk>/`           | Delete Product |
 
-### Bids
+### Mock-data (Product)
 | Method | Endpoint | Description | Access |
 |--------|----------|-------------|--------|
-| GET | `/freelancer/bid/` | List freelancer's bids | Freelancer only |
-| POST | `/freelancer/bid/create` | Place a bid on a project | Freelancer only |
-| POST | `/client/bid/accept` | Accept a bid | Client only |
+| GET | `/sales/order/`                         | List all open projects |
+| POST | `/sales/order/`                        | Create a order | 
+| GET | `/sales/order/<int:pk>/`                | Get order's details |
+| PATCH | `/sales/order/<int:pk>/`              | Partial Update of order |
+| PUT | `/sales/order/<int:pk>/`                |Full Update of Profuct |
+| DELETE | `/sales/order/<int:pk>/`             | Delete order |
 
-### Reviews
+### System_console (Business Elements)
 | Method | Endpoint | Description | Access |
 |--------|----------|-------------|--------|
-| POST | `/review/review/` | Get review for a project | Client only |
-| POST | `/review/review/create` | Create a review | Client only |
+| GET | `/system_console/business_elements/`            | List all open business_elements |
+| POST | `/system_console/business_elements/`           | Create a business_elements | 
+| GET | `/system_console/business_elements/<int:pk>/`   | Get business_elements's details |
+| PATCH | `/system_console/business_elements/<int:pk>/` | Partial Update of business_elements |
+| PUT | `/system_console/business_elements/<int:pk>/`   |Full Update of business_elements |
+| DELETE | `/system_console/business_elements/<int:pk>/`| Delete business_elements |
+
+
+
+### System_console (Access Rules)
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|--------|
+| GET | `/system_console/access_rules/`              | List all open access_rules |
+| POST | `/system_console/access_rules/`             | Create a access_rules | 
+| GET | `/system_console/access_rules/<int:pk>/`     | Get access_rules's details |
+| PATCH | `/system_console/access_rules/<int:pk>/`   | Partial Update of access_rules |
+| PUT | `/system_console/access_rules/<int:pk>/`     |Full Update of access_rules |
+| DELETE | `/system_console/access_rules/<int:pk>/`  | Delete access_rules |
 
 ---
 
-## Project Flow
-
-```
-1. Client registers → verifies email → creates project (status: OPEN)
-2. Freelancer registers → verifies email → places bid on project
-3. Client reviews bids → accepts one bid
-   → Project status: IN_PROGRESS
-   → Other bids: DECLINED
-4. Freelancer completes project → Project status: COMPLETED
-5. Client leaves review → Freelancer rating recalculated
-```
 
 ---
-
-## Filtering & Search
-
-`GET /common/projects/?min_price=100&max_price=500&skills=1&search=django`
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `min_price` | float | Projects with min_price >= value |
-| `max_price` | float | Projects with max_price <= value |
-| `skills` | int | Filter by skill ID |
-| `search` | string | Search in title and description |
-
----
-
 ## Documentation
 
 Swagger UI available at:
@@ -139,9 +165,4 @@ http://127.0.0.1:8000/api/schema/swagger-ui/
 
 ## Key Implementation Details
 
-- `UniqueConstraint` on Bid prevents duplicate bids at DB level
-- `CheckConstraint` on Project ensures `max_price >= min_price`
-- `select_for_update()` inside `transaction.atomic` prevents race conditions on bid acceptance
 - `update_fields` used on all model saves for minimal DB writes
-- Email verification codes expire after 5 minutes with max 6 attempts
-- `silk` profiling enabled only in DEBUG mode

@@ -15,6 +15,7 @@ urlpatterns = [
 urlpatterns += [
     path('auth/', include('apps.authentication.urls')),
     path('system_console/', include('apps.system_console.urls')),
+    path('sales/', include('apps.sales.urls')),
 ]
 
 

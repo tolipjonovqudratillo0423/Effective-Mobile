@@ -37,6 +37,7 @@ LOCAL_APPS = [
     'apps.authentication',
     'apps.common',
     'apps.system_console',
+    'apps.sales',
 ]
 
 
