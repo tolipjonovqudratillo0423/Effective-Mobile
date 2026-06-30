@@ -1,36 +1,50 @@
-
-
 from pathlib import Path
+from datetime import timedelta
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+from django.conf.global_settings import AUTH_USER_MODEL
+from decouple import config
+# =========================================================
+# BASE
+# =========================================================
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-49ei8s93_6ojqzut#iduz7#$-epalkcbrqxoa@@lzlm=((=zky'
+# =========================================================
+# SECURITY
+# =========================================================
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+SECRET_KEY = config("SECRET_KEY")
 
-ALLOWED_HOSTS = []
+DEBUG = config("DEBUG", cast=bool)
 
-AUTH_USER_MODEL = 'authentication.User'
+ALLOWED_HOSTS = ["127.0.0.1"]
 
 
-# Application definition
+
+# =========================================================
+# APPLICATIONS
+# =========================================================
 
 DJANGO_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'rest_framework',
+    "jazzmin",
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+]
+
+THIRD_PARTY_APPS = [
+    "rest_framework",
+    "rest_framework_simplejwt", 
     "rest_framework_simplejwt.token_blacklist"
+]
+
+DEBUG_TOOLS = [
+    'drf_spectacular',
 ]
 
 LOCAL_APPS = [
@@ -39,20 +53,21 @@ LOCAL_APPS = [
     'apps.system_console',
     'apps.sales',
 ]
-
-
-TRIRD_PARTY_APPS = [
-    'drf_spectacular',
-]
-
-
-INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS
-
 if DEBUG:
-    INSTALLED_APPS += TRIRD_PARTY_APPS
+    INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS + DEBUG_TOOLS
+else:  
+    INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+
+
+
+
+
+# =========================================================
+# MIDDLEWARE
+# =========================================================
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
+     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -61,8 +76,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'project.urls'
+WSGI_APPLICATION = 'project.wsgi.application'
 
+
+# =========================================================
+# TEMPLATES
+# =========================================================
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -78,11 +97,13 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'project.wsgi.application'
+ROOT_URLCONF = 'project.urls'
 
 
-# Database
-# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
+
+# =========================================================
+# DATABASE
+# =========================================================
 
 DATABASES = {
     'default': {
@@ -91,24 +112,48 @@ DATABASES = {
     }
 }
 
-SPECTACULAR_SETTINGS = {
-    'TITLE': 'Essential Mobile',
-    'DESCRIPTION': 'Auth flow',
-    'VERSION': '1.0.1',
-    'SERVE_INCLUDE_SCHEMA': False,
-    # OTHER SETTINGS
-}
-REST_FRAMEWORK = {
-    
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
-}
 
-# Password validation
-# https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
+
+# =========================================================
+# INTERNATIONALIZATION
+# =========================================================
+
+LANGUAGE_CODE = 'en-us'
+
+TIME_ZONE = 'UTC'
+
+USE_I18N = True
+
+USE_TZ = True
+
+
+
+# =========================================================
+# STATIC & MEDIA FILES
+# =========================================================
+
+STATIC_URL = "static/"
+
+STATIC_ROOT = BASE_DIR / "static"
+
+
+MEDIA_URL = "/media/"
+
+MEDIA_ROOT = BASE_DIR / "media"
+
+
+
+# # =========================================================
+# # DJANGO DEFAULTS
+# # =========================================================
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+AUTH_USER_MODEL = 'authentication.User'
+
+# LOGIN_URL = "/auth/access-denied/"
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -126,19 +171,55 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/6.0/topics/i18n/
+# # =========================================================
+# # DJANGO REST FRAMEWORK
+# # =========================================================
 
-LANGUAGE_CODE = 'en-us'
+REST_FRAMEWORK = {
+   
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ],
+    "DEFAULT_PARSER_CLASSES": [
+        "rest_framework.parsers.JSONParser",
+        "rest_framework.parsers.FormParser",
+        "rest_framework.parsers.MultiPartParser",
+    ],
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "10/min"
+    }
+}
 
-TIME_ZONE = 'UTC'
 
-USE_I18N = True
+# # =========================================================
+# # SIMPLE JWT
+# # =========================================================
 
-USE_TZ = True
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": config("ACCESS_TOKEN_LIFETIME", default=timedelta(minutes=5)),
+    "REFRESH_TOKEN_LIFETIME": config("REFRESH_TOKEN_LIFETIME", default=timedelta(days=1)),
+    "ROTATE_REFRESH_TOKENS": True,
+}
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/6.0/howto/static-files/
+# # =========================================================
+# # DRF SPECTACULAR
+# # =========================================================
 
-STATIC_URL = 'static/'
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Effective Mobile',
+    'DESCRIPTION': 'Test task for Effective Mobile',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}
+
+
+# # =========================================================
+# # CORS
+# # =========================================================
+

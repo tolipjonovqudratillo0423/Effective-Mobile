@@ -1,3 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
+from apps.system_console.models import (
+    AccessRules,
+    BusinessElement,
+)
+
+admin.site.register([BusinessElement, AccessRules])

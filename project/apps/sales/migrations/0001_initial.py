@@ -13,32 +13,29 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='BusinessElement',
+            name='Product',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('is_active', models.BooleanField(default=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('title', models.CharField(max_length=100)),
+                ('name', models.CharField(max_length=100)),
+                ('price', models.DecimalField(decimal_places=2, max_digits=10)),
             ],
             options={
-                'verbose_name': 'Business Element',
-                'verbose_name_plural': 'Business Elements',
+                'abstract': False,
             },
         ),
         migrations.CreateModel(
-            name='AccessRules',
+            name='Order',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('is_active', models.BooleanField(default=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('role', models.CharField(choices=[('guest', 'Guest'), ('user', 'User'), ('manager', 'Manager'), ('admin', 'Admin')], max_length=20)),
-                ('can_read', models.BooleanField(default=False)),
-                ('can_create', models.BooleanField(default=False)),
-                ('can_update', models.BooleanField(default=False)),
-                ('can_delete', models.BooleanField(default=False)),
-                ('element', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='accessrules', to='system_console.businesselement')),
+                ('quantity', models.PositiveIntegerField()),
+                ('total', models.DecimalField(decimal_places=2, max_digits=10)),
+                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='sales.product')),
             ],
             options={
                 'abstract': False,
